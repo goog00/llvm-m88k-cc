@@ -40,6 +40,8 @@ public:
   static void printOperand(const MCOperand &MO, const MCAsmInfo *MAI,
                            raw_ostream &O);
 
+  void printU16ImmOperand(const MCInst *MI, int OpNum, const MCSubtargetInfo &STI, raw_ostream &O);                         
+
   void printCCodeOperand(const MCInst *MI, int OpNum,
                          const MCSubtargetInfo &STI, raw_ostream &O);
   void printPCRelOperand(const MCInst *MI, uint64_t Address, int OpNum,

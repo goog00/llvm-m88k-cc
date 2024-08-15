@@ -38,6 +38,7 @@ class Pseudo<dag outs, dag ins, list<dag> pattern>
 // The formats follow the categories specified in the User Manual.
 //===----------------------------------------------------------------------===//
 
+//F_L类是一个基础类，定义了一种含有两个寄存器字段（rd和rs1）的指令。
 // Category: Logical.
 class F_L<dag outs, dag ins, string asm, string operands,
           list<dag> pattern = []>
@@ -48,16 +49,19 @@ class F_L<dag outs, dag ins, string asm, string operands,
   let Inst{20-16} = rs1;
 }
 
+//F_LR类进一步扩展了F_L，增加了一个额外的源寄存器字段（rs2），
+//并定义了一些特定的位位置用于表示指令操作码、功能码和比较
+// 参考：MC88100_RISC_Microprocessor_Users_Manual_2ed_1990.pdf P87页
 // Format: Logical with triadic register.
 class F_LR<bits<5> func, bits<1> comp, string asm, list<dag> pattern = []>
    : F_L<(outs GPROpnd:$rd), (ins GPROpnd:$rs1, GPROpnd:$rs2),
          !if(comp, !strconcat(asm, ".c"), asm), "$rd, $rs1, $rs2", pattern> {
   bits<5>  rs2;
   let Inst{31-26} = 0b111101;
-  let Inst{15-11} = func;
+  let Inst{15-11} = func; // 功能码
   let Inst{10}    = comp;
   let Inst{9-5}   = 0b00000;
-  let Inst{4-0}   = rs2;
+  let Inst{4-0}   = rs2; // source 2 register
 }
 
 // Category: Integer.
@@ -79,6 +83,8 @@ class F_II<bits<6> func, dag ins, string asm, list<dag> pattern = []>
   let Inst{15-0}  = imm16;
 }
 
+
+// 参考：MC88100_RISC_Microprocessor_Users_Manual_2ed_1990.pdf P85页
 // Format: Integer with triadic register and carry.
 class F_IRC<bits<6> func, bits<1> carryin, bits<1> carryout,
             string asm, list<dag> pattern = []>

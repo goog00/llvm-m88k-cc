@@ -55,6 +55,18 @@ void M88kInstPrinter::printOperand(const MCOperand &MO, const MCAsmInfo *MAI,
     llvm_unreachable("Invalid operand");
 }
 
+void M88kInstPrinter::printU16ImmOperand(const MCInst *MI, int OpNum,
+                                         const MCSubtargetInfo &STI,
+                                         raw_ostream &O) {
+    const MCOperand &MO = MI->getOperand(OpNum);
+    if (MO.isImm()) {
+      O << MO.getImm();
+    } else {
+      assert(MO.isExpr() && "Expected expression");
+      MO.getExpr()->print(O,&MAI);
+    }
+}
+
 void M88kInstPrinter::printCCodeOperand(const MCInst *MI, int OpNum,
                                         const MCSubtargetInfo &STI,
                                         raw_ostream &O) {

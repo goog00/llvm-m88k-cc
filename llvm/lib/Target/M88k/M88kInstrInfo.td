@@ -45,6 +45,20 @@ class ImmediateOp<ValueType vt, string asmop> : Operand<vt> {
   let OperandType = "OPERAND_IMMEDIATE";
 }
 
+class ImmOpWithPattern<ValueType vt, string asmop, code pred, SDNodeXForm xform> :
+      ImmediateOp<vt, asmop>, IntImmLeaf<vt, pred, xform>;
+
+multiclass Immediate<ValueType vt, code pred, SDNodeXForm xform, string asmop> {
+  def "" : ImmOpWithPattern<vt, asmop, pred, xform>;
+}
+
+//Signed and unsigned operands.
+def U16Imm : ImmediateAsmOperand<"U16Imm">;
+
+defm uimm16 : Immediate<i32,[{
+  return isUInt<16>(Imm.getZExtValue());
+}],NOOP_SDNodeXForm, "U16Imm">;
+
 // Condition code operands.
 def CCode : AsmOperandClass {
   let Name = "CCode";
@@ -85,6 +99,15 @@ def brtarget16 : PCRelOperand<OtherVT, PCRel16> {
 // Logic and bit field instructions.
 // ---------------------------------------------------------------------------//
 
+
+//multiclass Logic：定义了一个多类Logic，用于描述具有三寄存器操作数的逻辑指令（如AND、XOR、OR）。
+//Func：用于指定操作码的功能位（操作码的一部分）。
+//OpcStr：对应指令的汇编表示（如“and”、“xor”）。
+//OpNode：对应的SelectionDAG节点，用于LLVM后端生成指令的匹配。
+//isCommutable = 1：表示该指令是可交换的，即操作数顺序可以交换。
+//def rr：定义了一个无补码的逻辑指令rr，通过调用F_LR类生成。OpNode节点表示逻辑操作（如and、xor）。
+//def rrc：定义了一个带补码的逻辑指令rrc，其中一个操作数被取反（not操作）。
+
 // Multiclass for logical instructions with triadic registers.
 multiclass Logic<bits<5> Func, string OpcStr, SDNode OpNode> {
   let isCommutable = 1 in
@@ -98,14 +121,46 @@ defm AND : Logic<0b01000, "and", and>;
 defm XOR : Logic<0b01010, "xor", xor>;
 defm OR  : Logic<0b01011, "or", or>;
 
-multiclass ArithTri<bits<6> Func, string OpcStr> { //, bit IsReMat = 0> {
+// multiclass ArithTri：定义了一个多类ArithTri，用于描述三寄存器的算术指令（如DIVU、DIVS）。
+// Func：用于指定操作码的功能位。
+// OpcStr：对应指令的汇编表示。
+// def rr：通过调用F_IRC类生成没有进位输入和输出的指令rr
+
+//IsReMat 参数用于指示一条指令是否可以在编译器优化过程中通过重新计算获得其结果。
+//如果 IsReMat = 1，意味着这条指令是可重新计算的，编译器可以在寄存器紧张的情况下选择重新计算而不是加载存储的结果；
+//IsReMat = 0 则表示不可重新计算
+multiclass ArithTri<bits<6> Func, string OpcStr , bit IsReMat = 0> {
   def rr : F_IRC<Func, /*carryin=*/0b0, /*carryout=*/0b0, OpcStr>;
-//  let isReMaterializable = IsReMat in
-//    def ri : F_II<Func, (ins GPROpnd:$rs1, uimm16:$imm16), OpcStr>;
+  let isReMaterializable = IsReMat in
+    def ri : F_II<Func, (ins GPROpnd:$rs1, uimm16:$imm16), OpcStr>;
 }
 
+multiclass ArithTriCarry<bits<6> Func, string OpcStr, bit IsReMat = 0> 
+  : ArithTri<Func, OpcStr, IsReMat> {
+    let Uses = [CARRY] in 
+        def rrci  : F_IRC<Func,/*carryin=*/0b1,/*carryout=*/0b0, OpcStr>;
+     //不要错写成这样 =: def rrci = : F_IRC<Func,/*carryin=*/0b1,/*carryout=*/0b0, OpcStr>;  
+    let Defs = [CARRY] in 
+        def rrco : F_IRC<Func, /*carryin=*/0b0, /*carryout=*/0b1,OpcStr>;
+    let Uses = [CARRY] in 
+        def rrcio : F_IRC<Func, /*carryin=*/0b1, /*carryout=*/0b1, OpcStr>;        
+}
+
+let isCommutable = 1 in {
+  let isAdd = 1 in {
+    //功能码：0b011000  参考：MC88100_RISC_Microprocessor_Users_Manual_2ed_1990.pdf P86页
+    defm ADDU : ArithTriCarry<0b011000, "addu", 1>; 
+   //功能码：0b011100  参考：MC88100_RISC_Microprocessor_Users_Manual_2ed_1990.pdf P85页
+    defm ADD  : ArithTriCarry<0b011100, "add", 1>;
+  }
+  defm MULU : ArithTri<0b011011, "mulu">;
+}
+
+defm SUBU : ArithTriCarry<0b011001,"subu", 1>;
+defm SUB : ArithTriCarry<0b011101, "sub", 1>;
 defm DIVU : ArithTri<0b011010, "divu">;
 defm DIVS : ArithTri<0b011110, "divs">;
+
 
 let isBarrier = 1, isBranch = 1, isTerminator = 1, isIndirectBranch = 1 in {
   def JMP : F_JMP<0b11000, "jmp", [(brind GPROpnd:$rs2)]>;

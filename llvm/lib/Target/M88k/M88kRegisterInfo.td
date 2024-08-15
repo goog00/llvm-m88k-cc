@@ -53,4 +53,28 @@ def GRPair : RegisterTuples<[sub_hi, sub_lo],
 
 def GPR64 : M88kRegisterClass<[i64, f64, v8i8, v4i16, v2i32], 64, 32,
                               (add GRPair), 2>;
+
 def GPR64Opnd : M88kRegisterOperand<GPR64>;
+
+
+
+// Control registers.
+foreach I = 0-63 in {
+  def CR#I : M88kCRReg<I, "cr"#I>;
+}
+
+// Carry bit. This is really bit 28 of the processor status register aka cr1.
+def CARRY: M88kCRReg<1, "carry"> {
+  let Aliases = [CR1];
+}
+
+foreach I = 0-63 in {
+  def FCR#I : M88kCRReg<I, "fcr"#I>;
+}
+
+let isAllocatable = 0 in {
+  def CR : M88kRegisterClass<[i32], 32, 32, (add (sequence "CR%u", 0, 63))>;
+  def FCR : M88kRegisterClass<[i32], 32, 32, (add (sequence "FCR%u", 0, 63))>;
+}
+def CROpnd : M88kRegisterOperand<CR>;
+def FCROpnd : M88kRegisterOperand<FCR>;

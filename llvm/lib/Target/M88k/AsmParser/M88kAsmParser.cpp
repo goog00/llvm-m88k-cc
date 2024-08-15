@@ -107,6 +107,10 @@ public:
     return Kind == OpKind_Imm;
   }
 
+  bool isImm(int64_t MinValue, int64_t MaxValue) const {
+    return Kind == OpKind_Imm && inRange(Imm, MinValue, MaxValue);
+  }
+
   const MCExpr *getImm() const {
     assert(isImm() && "Invalid type access!");
     return Imm;
@@ -167,6 +171,8 @@ public:
   }
 
   bool isCCode() const { return Kind == OpKind_Imm && inRange(Imm, 0, 31); }
+
+  bool isU16Imm() const { return isImm(0, 65535); }
 
   void print(raw_ostream &OS) const override {
     switch (Kind) {
