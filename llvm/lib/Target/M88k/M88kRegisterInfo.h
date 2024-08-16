@@ -1,5 +1,5 @@
 //===-- M88kRegisterInfo.h - M88k Register Information
-//Impl -----*- C++ -*-===//
+// Impl -----*- C++ -*-===//
 //
 // Part of the LLVM Project, under the Apache License
 // v2.0 with LLVM Exceptions. See
@@ -26,19 +26,15 @@ struct M88kRegisterInfo : public M88kGenRegisterInfo {
   M88kRegisterInfo();
 
   /// Code Generation virtual methods...
-  const MCPhysReg *getCalleeSavedRegs(
-      const MachineFunction *MF) const override;
+  const MCPhysReg *getCalleeSavedRegs(const MachineFunction *MF) const override;
 
-  BitVector getReservedRegs(
-      const MachineFunction &MF) const override;
+  BitVector getReservedRegs(const MachineFunction &MF) const override;
 
-  bool eliminateFrameIndex(
-      MachineBasicBlock::iterator II, int SPAdj,
-      unsigned FIOperandNum,
-      RegScavenger *RS = nullptr) const override;
+  bool eliminateFrameIndex(MachineBasicBlock::iterator II, int SPAdj,
+                           unsigned FIOperandNum,
+                           RegScavenger *RS = nullptr) const override;
 
-  Register getFrameRegister(
-      const MachineFunction &MF) const override;
+  Register getFrameRegister(const MachineFunction &MF) const override;
 };
 
 } // end namespace llvm

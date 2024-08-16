@@ -29,31 +29,31 @@ using namespace llvm;
 #define GET_REGINFO_TARGET_DESC
 #include "M88kGenRegisterInfo.inc"
 
-M88kRegisterInfo::M88kRegisterInfo()
-    : M88kGenRegisterInfo(M88k::R1) {}
+M88kRegisterInfo::M88kRegisterInfo() : M88kGenRegisterInfo(M88k::R1) {}
 
-const MCPhysReg *M88kRegisterInfo::getCalleeSavedRegs(
-    const MachineFunction *MF) const {
+const MCPhysReg *
+M88kRegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   return CSR_M88k_SaveList;
 }
 
-BitVector M88kRegisterInfo::getReservedRegs(
-    const MachineFunction &MF) const {
+BitVector M88kRegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   BitVector Reserved(getNumRegs());
 
+  Reserved.set(M88k::R0);
+  Reserved.set(M88k::R28);
+  Reserved.set(M88k::R29);
   // R31 is the stack pointer.
   Reserved.set(M88k::R31);
 
   return Reserved;
 }
 
-bool M88kRegisterInfo::eliminateFrameIndex(
-    MachineBasicBlock::iterator MI, int SPAdj,
-    unsigned FIOperandNum, RegScavenger *RS) const {
+bool M88kRegisterInfo::eliminateFrameIndex(MachineBasicBlock::iterator MI,
+                                           int SPAdj, unsigned FIOperandNum,
+                                           RegScavenger *RS) const {
   return false;
 }
 
-Register M88kRegisterInfo::getFrameRegister(
-    const MachineFunction &MF) const {
+Register M88kRegisterInfo::getFrameRegister(const MachineFunction &MF) const {
   return M88k::R30;
 }

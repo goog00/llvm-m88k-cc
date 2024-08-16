@@ -11,10 +11,10 @@
 //===----------------------------------------------------------------------===//
 
 #include "M88kSubtarget.h"
-#include "M88kTargetMachine.h"
 #include "GISel/M88kCallLowering.h"
 #include "GISel/M88kLegalizerInfo.h"
 #include "GISel/M88kRegisterBankInfo.h"
+#include "M88kTargetMachine.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/TargetParser/Triple.h"
 #include <string>
@@ -29,22 +29,15 @@ using namespace llvm;
 
 void M88kSubtarget::anchor() {}
 
-M88kSubtarget::M88kSubtarget(const Triple &TT,
-                             const std::string &CPU,
-                             const std::string &FS,
-                             const TargetMachine &TM)
-    : M88kGenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU,
-                           FS),
-      InstrInfo(*this), TLInfo(TM, *this),
-      FrameLowering() {
+M88kSubtarget::M88kSubtarget(const Triple &TT, const std::string &CPU,
+                             const std::string &FS, const TargetMachine &TM)
+    : M88kGenSubtargetInfo(TT, CPU, /*TuneCPU*/ CPU, FS), InstrInfo(*this),
+      TLInfo(TM, *this), FrameLowering() {
   // GlobalISEL
-  CallLoweringInfo.reset(
-      new M88kCallLowering(*getTargetLowering()));
+  CallLoweringInfo.reset(new M88kCallLowering(*getTargetLowering()));
   Legalizer.reset(new M88kLegalizerInfo(*this));
-  auto *RBI =
-      new M88kRegisterBankInfo(*getRegisterInfo());
+  auto *RBI = new M88kRegisterBankInfo(*getRegisterInfo());
   RegBankInfo.reset(RBI);
   InstSelector.reset(createM88kInstructionSelector(
-      *static_cast<const M88kTargetMachine *>(&TM),
-      *this, *RBI));
+      *static_cast<const M88kTargetMachine *>(&TM), *this, *RBI));
 }

@@ -31,21 +31,17 @@ using namespace llvm;
 namespace {
 class M88kAsmPrinter : public AsmPrinter {
 public:
-  explicit M88kAsmPrinter(
-      TargetMachine &TM,
-      std::unique_ptr<MCStreamer> Streamer)
+  explicit M88kAsmPrinter(TargetMachine &TM,
+                          std::unique_ptr<MCStreamer> Streamer)
       : AsmPrinter(TM, std::move(Streamer)) {}
 
-  StringRef getPassName() const override {
-    return "M88k Assembly Printer";
-  }
+  StringRef getPassName() const override { return "M88k Assembly Printer"; }
 
   void emitInstruction(const MachineInstr *MI) override;
 };
 } // end of anonymous namespace
 
-void M88kAsmPrinter::emitInstruction(
-    const MachineInstr *MI) {
+void M88kAsmPrinter::emitInstruction(const MachineInstr *MI) {
   MCInst LoweredMI;
   M88kMCInstLower Lower;
   Lower.lower(MI, LoweredMI);
@@ -53,8 +49,6 @@ void M88kAsmPrinter::emitInstruction(
 }
 
 // Force static initialization.
-extern "C" LLVM_EXTERNAL_VISIBILITY void
-LLVMInitializeM88kAsmPrinter() {
-  RegisterAsmPrinter<M88kAsmPrinter> X(
-      getTheM88kTarget());
+extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeM88kAsmPrinter() {
+  RegisterAsmPrinter<M88kAsmPrinter> X(getTheM88kTarget());
 }

@@ -15,8 +15,7 @@
 
 using namespace llvm;
 
-MCOperand M88kMCInstLower::lowerOperand(
-    const MachineOperand &MO) const {
+MCOperand M88kMCInstLower::lowerOperand(const MachineOperand &MO) const {
   switch (MO.getType()) {
   case MachineOperand::MO_Register:
     return MCOperand::createReg(MO.getReg());
@@ -29,8 +28,7 @@ MCOperand M88kMCInstLower::lowerOperand(
   }
 }
 
-void M88kMCInstLower::lower(const MachineInstr *MI,
-                            MCInst &OutMI) const {
+void M88kMCInstLower::lower(const MachineInstr *MI, MCInst &OutMI) const {
   OutMI.setOpcode(MI->getOpcode());
   for (auto &MO : MI->operands()) {
     // Ignore all implicit register operands.

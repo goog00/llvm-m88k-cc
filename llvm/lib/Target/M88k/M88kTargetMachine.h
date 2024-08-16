@@ -21,28 +21,23 @@ namespace llvm {
 
 class M88kTargetMachine : public LLVMTargetMachine {
   std::unique_ptr<TargetLoweringObjectFile> TLOF;
-  mutable StringMap<std::unique_ptr<M88kSubtarget>>
-      SubtargetMap;
+  mutable StringMap<std::unique_ptr<M88kSubtarget>> SubtargetMap;
 
 public:
-  M88kTargetMachine(const Target &T, const Triple &TT,
-                    StringRef CPU, StringRef FS,
-                    const TargetOptions &Options,
+  M88kTargetMachine(const Target &T, const Triple &TT, StringRef CPU,
+                    StringRef FS, const TargetOptions &Options,
                     std::optional<Reloc::Model> RM,
-                    std::optional<CodeModel::Model> CM,
-                    CodeGenOpt::Level OL, bool JIT);
+                    std::optional<CodeModel::Model> CM, CodeGenOpt::Level OL,
+                    bool JIT);
   ~M88kTargetMachine() override;
 
   bool noZeroDivCheck() const;
 
-  const M88kSubtarget *
-  getSubtargetImpl(const Function &) const override;
+  const M88kSubtarget *getSubtargetImpl(const Function &) const override;
 
-  TargetPassConfig *
-  createPassConfig(PassManagerBase &PM) override;
+  TargetPassConfig *createPassConfig(PassManagerBase &PM) override;
 
-  TargetLoweringObjectFile *
-  getObjFileLowering() const override {
+  TargetLoweringObjectFile *getObjFileLowering() const override {
     return TLOF.get();
   }
 };

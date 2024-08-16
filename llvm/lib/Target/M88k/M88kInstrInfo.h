@@ -37,12 +37,9 @@ public:
   explicit M88kInstrInfo(M88kSubtarget &STI);
 
   // Return the M88kRegisterInfo, which this class owns.
-  const M88kRegisterInfo &getRegisterInfo() const {
-    return RI;
-  }
+  const M88kRegisterInfo &getRegisterInfo() const { return RI; }
 
-  bool
-  expandPostRAPseudo(MachineInstr &MI) const override;
+  bool expandPostRAPseudo(MachineInstr &MI) const override;
 };
 
 } // end namespace llvm

@@ -15,19 +15,13 @@
 using namespace llvm;
 
 M88kFrameLowering::M88kFrameLowering()
-    : TargetFrameLowering(
-          TargetFrameLowering::StackGrowsDown, Align(8),
-          0, Align(8), false /* StackRealignable */) {}
+    : TargetFrameLowering(TargetFrameLowering::StackGrowsDown, Align(8), 0,
+                          Align(8), false /* StackRealignable */) {}
 
-void M88kFrameLowering::emitPrologue(
-    MachineFunction &MF, MachineBasicBlock &MBB) const {
-}
+void M88kFrameLowering::emitPrologue(MachineFunction &MF,
+                                     MachineBasicBlock &MBB) const {}
 
-void M88kFrameLowering::emitEpilogue(
-    MachineFunction &MF, MachineBasicBlock &MBB) const {
-}
+void M88kFrameLowering::emitEpilogue(MachineFunction &MF,
+                                     MachineBasicBlock &MBB) const {}
 
-bool M88kFrameLowering::hasFP(
-    const MachineFunction &MF) const {
-  return false;
-}
+bool M88kFrameLowering::hasFP(const MachineFunction &MF) const { return false; }

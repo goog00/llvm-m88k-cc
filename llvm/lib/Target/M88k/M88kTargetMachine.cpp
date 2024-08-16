@@ -31,8 +31,7 @@ static cl::opt<bool>
 
 extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeM88kTarget() {
   // Register the target.
-  RegisterTargetMachine<M88kTargetMachine> X(
-      getTheM88kTarget());
+  RegisterTargetMachine<M88kTargetMachine> X(getTheM88kTarget());
   auto &PR = *PassRegistry::getPassRegistry();
   initializeM88kDAGToDAGISelPass(PR);
   initializeM88kDivInstrPass(PR);
@@ -40,9 +39,7 @@ extern "C" LLVM_EXTERNAL_VISIBILITY void LLVMInitializeM88kTarget() {
 
 namespace {
 // TODO: Check.
-std::string computeDataLayout(const Triple &TT,
-                              StringRef CPU,
-                              StringRef FS) {
+std::string computeDataLayout(const Triple &TT, StringRef CPU, StringRef FS) {
   std::string Ret;
 
   // Big endian.
@@ -72,19 +69,16 @@ std::string computeDataLayout(const Triple &TT,
 } // namespace
 
 /// Create an M88k architecture model.
-M88kTargetMachine::M88kTargetMachine(
-    const Target &T, const Triple &TT, StringRef CPU,
-    StringRef FS, const TargetOptions &Options,
-    std::optional<Reloc::Model> RM,
-    std::optional<CodeModel::Model> CM,
-    CodeGenOpt::Level OL, bool JIT)
-    : LLVMTargetMachine(
-          T, computeDataLayout(TT, CPU, FS), TT, CPU,
-          FS, Options, !RM ? Reloc::Static : *RM,
-          getEffectiveCodeModel(CM, CodeModel::Medium),
-          OL),
-      TLOF(std::make_unique<
-           TargetLoweringObjectFileELF>()) {
+M88kTargetMachine::M88kTargetMachine(const Target &T, const Triple &TT,
+                                     StringRef CPU, StringRef FS,
+                                     const TargetOptions &Options,
+                                     std::optional<Reloc::Model> RM,
+                                     std::optional<CodeModel::Model> CM,
+                                     CodeGenOpt::Level OL, bool JIT)
+    : LLVMTargetMachine(T, computeDataLayout(TT, CPU, FS), TT, CPU, FS, Options,
+                        !RM ? Reloc::Static : *RM,
+                        getEffectiveCodeModel(CM, CodeModel::Medium), OL),
+      TLOF(std::make_unique<TargetLoweringObjectFileELF>()) {
   initAsmInfo();
 }
 
@@ -93,16 +87,13 @@ M88kTargetMachine::~M88kTargetMachine() {}
 bool M88kTargetMachine::noZeroDivCheck() const { return NoZeroDivCheck; }
 
 const M88kSubtarget *
-M88kTargetMachine::getSubtargetImpl(
-    const Function &F) const {
+M88kTargetMachine::getSubtargetImpl(const Function &F) const {
   Attribute CPUAttr = F.getFnAttribute("target-cpu");
-  Attribute FSAttr =
-      F.getFnAttribute("target-features");
+  Attribute FSAttr = F.getFnAttribute("target-features");
 
-  std::string CPU =
-      !CPUAttr.hasAttribute(Attribute::None)
-          ? CPUAttr.getValueAsString().str()
-          : TargetCPU;
+  std::string CPU = !CPUAttr.hasAttribute(Attribute::None)
+                        ? CPUAttr.getValueAsString().str()
+                        : TargetCPU;
   std::string FS = !FSAttr.hasAttribute(Attribute::None)
                        ? FSAttr.getValueAsString().str()
                        : TargetFS;
@@ -114,8 +105,7 @@ M88kTargetMachine::getSubtargetImpl(
     // TM and the code generation flags on the function
     // that reside in TargetOptions.
     resetTargetOptions(F);
-    I = std::make_unique<M88kSubtarget>(TargetTriple,
-                                        CPU, FS, *this);
+    I = std::make_unique<M88kSubtarget>(TargetTriple, CPU, FS, *this);
   }
 
   return I.get();
@@ -125,8 +115,7 @@ namespace {
 /// M88k Code Generator Pass Configuration Options.
 class M88kPassConfig : public TargetPassConfig {
 public:
-  M88kPassConfig(M88kTargetMachine &TM,
-                 PassManagerBase &PM)
+  M88kPassConfig(M88kTargetMachine &TM, PassManagerBase &PM)
       : TargetPassConfig(TM, PM) {}
 
   bool addInstSelector() override;
@@ -142,14 +131,12 @@ public:
 };
 } // namespace
 
-TargetPassConfig *M88kTargetMachine::createPassConfig(
-    PassManagerBase &PM) {
+TargetPassConfig *M88kTargetMachine::createPassConfig(PassManagerBase &PM) {
   return new M88kPassConfig(*this, PM);
 }
 
 bool M88kPassConfig::addInstSelector() {
-  addPass(createM88kISelDag(getTM<M88kTargetMachine>(),
-                            getOptLevel()));
+  addPass(createM88kISelDag(getTM<M88kTargetMachine>(), getOptLevel()));
   return false;
 }
 

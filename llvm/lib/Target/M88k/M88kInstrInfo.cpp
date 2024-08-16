@@ -36,8 +36,7 @@ void M88kInstrInfo::anchor() {}
 M88kInstrInfo::M88kInstrInfo(M88kSubtarget &STI)
     : M88kGenInstrInfo(), RI(), STI(STI) {}
 
-bool M88kInstrInfo::expandPostRAPseudo(
-    MachineInstr &MI) const {
+bool M88kInstrInfo::expandPostRAPseudo(MachineInstr &MI) const {
   MachineBasicBlock &MBB = *MI.getParent();
 
   switch (MI.getOpcode()) {
@@ -45,8 +44,7 @@ bool M88kInstrInfo::expandPostRAPseudo(
     return false;
   case M88k::RET: {
     MachineInstrBuilder MIB =
-        BuildMI(MBB, &MI, MI.getDebugLoc(),
-                get(M88k::JMP))
+        BuildMI(MBB, &MI, MI.getDebugLoc(), get(M88k::JMP))
             .addReg(M88k::R1, RegState::Undef);
 
     // Retain any imp-use flags.
